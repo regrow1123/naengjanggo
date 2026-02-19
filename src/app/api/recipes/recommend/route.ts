@@ -1,9 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,9 +9,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '재료를 입력해주세요.' }, { status: 400 });
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return NextResponse.json({ error: 'API 키가 설정되지 않았습니다.' }, { status: 500 });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Gemini API 키가 설정되지 않았습니다.' }, { status: 500 });
     }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const ingredientList = ingredients
       .map((i: { name: string; quantity?: number; unit?: string; dday?: number }) => {
@@ -59,13 +59,8 @@ export async function POST(request: NextRequest) {
 have는 위 재료 목록에 있으면 true, 추가로 필요하면 false로 표시해주세요.
 한국 가정에서 흔히 있는 기본 양념(소금, 설탕, 식용유, 참기름, 간장 등)은 있다고 가정해도 됩니다.`;
 
-    const message = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
     // JSON 파싱
     const jsonMatch = text.match(/\[[\s\S]*\]/);
