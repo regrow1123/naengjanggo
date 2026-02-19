@@ -19,6 +19,7 @@ export default function RecipesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
+  const [addedToCart, setAddedToCart] = useState<Set<number>>(new Set());
   const [meta, setMeta] = useState<{ matchedPublicRecipes: number; totalPublicRecipes: number } | null>(null);
   const [publicRecipes, setPublicRecipes] = useState<Record<string, { name: string; image?: string; ingredients: string }>>({});
 
@@ -189,11 +190,37 @@ export default function RecipesPage() {
                 ))}
               </div>
 
-              {/* Missing ingredients shortcut */}
+              {/* Missing ingredients + add to cart */}
               {recipe.ingredients.some((i) => !i.have) && (
-                <div className="mb-3 flex items-center gap-2 rounded-lg bg-yellow-50 p-2 text-xs text-yellow-700">
-                  <ShoppingCart className="h-3.5 w-3.5" />
-                  부족: {recipe.ingredients.filter((i) => !i.have).map((i) => i.name).join(', ')}
+                <div className="mb-3 rounded-lg bg-yellow-50 p-2">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-xs text-yellow-700">
+                      <ShoppingCart className="h-3.5 w-3.5" />
+                      부족: {recipe.ingredients.filter((i) => !i.have).map((i) => i.name).join(', ')}
+                    </span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2 w-full gap-1 border-yellow-300 text-xs text-yellow-700 hover:bg-yellow-100"
+                    disabled={addedToCart.has(idx)}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const missing = recipe.ingredients.filter((i) => !i.have);
+                      try {
+                        const res = await fetch('/api/shopping/add', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ items: missing }),
+                        });
+                        if (res.ok) {
+                          setAddedToCart((prev) => new Set(prev).add(idx));
+                        }
+                      } catch { /* ignore */ }
+                    }}
+                  >
+                    {addedToCart.has(idx) ? '✅ 장보기에 추가됨' : '🛒 장보기 리스트에 추가'}
+                  </Button>
                 </div>
               )}
 
