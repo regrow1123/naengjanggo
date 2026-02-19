@@ -1,6 +1,6 @@
 import { mockIngredients, getDday } from '@/lib/mock-data';
 import ExpiryBadge from '@/components/ExpiryBadge';
-import { AlertTriangle, Refrigerator, ChefHat, CalendarDays, ShoppingCart, Receipt } from 'lucide-react';
+import { AlertTriangle, Refrigerator } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 
@@ -130,26 +130,6 @@ export default async function HomePage() {
         </>
       )}
 
-      {/* Quick Actions */}
-      <Card className="shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">빠른 메뉴</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-2">
-          <Link href="/fridge" className="flex items-center gap-2 rounded-xl bg-green-50 p-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-100">
-            <Refrigerator className="h-4 w-4" /> 내 냉장고
-          </Link>
-          <Link href="/recipes" className="flex items-center gap-2 rounded-xl bg-orange-50 p-3 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-100">
-            <ChefHat className="h-4 w-4" /> AI 레시피
-          </Link>
-          <Link href="/planner" className="flex items-center gap-2 rounded-xl bg-purple-50 p-3 text-sm font-medium text-purple-700 transition-colors hover:bg-purple-100">
-            <CalendarDays className="h-4 w-4" /> 식단 플래너
-          </Link>
-          <Link href="/shopping" className="flex items-center gap-2 rounded-xl bg-blue-50 p-3 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100">
-            <ShoppingCart className="h-4 w-4" /> 장보기
-          </Link>
-        </CardContent>
-      </Card>
     </div>
   );
 }
