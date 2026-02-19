@@ -24,7 +24,7 @@ export function useShopping() {
 
   const fetch = useCallback(async () => {
     if (!isSupabaseConfigured()) {
-      setItems(mockShoppingItems);
+      setItems([]);
       setLoading(false);
       return;
     }

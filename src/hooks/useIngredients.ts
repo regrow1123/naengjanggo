@@ -37,7 +37,7 @@ export function useFridges() {
 
   const fetch = useCallback(async () => {
     if (!isSupabaseConfigured()) {
-      setFridges(mockFridges);
+      setFridges([]);
       setLoading(false);
       return;
     }
@@ -57,8 +57,7 @@ export function useIngredients(fridgeId?: string) {
 
   const fetch = useCallback(async () => {
     if (!isSupabaseConfigured()) {
-      const filtered = fridgeId ? mockIngredients.filter((i) => i.fridgeId === fridgeId) : mockIngredients;
-      setIngredients(filtered);
+      setIngredients([]);
       setLoading(false);
       return;
     }

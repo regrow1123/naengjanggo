@@ -29,7 +29,7 @@ async function getIngredients() {
       }
     }
   }
-  return mockIngredients;
+  return [];
 }
 
 export default async function HomePage() {
