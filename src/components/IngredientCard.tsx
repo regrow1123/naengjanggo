@@ -1,8 +1,17 @@
+'use client';
+
 import { Ingredient } from '@/lib/types';
 import { getDday } from '@/lib/mock-data';
 import ExpiryBadge from './ExpiryBadge';
+import { Trash2 } from 'lucide-react';
 
-export default function IngredientCard({ ingredient }: { ingredient: Ingredient }) {
+export default function IngredientCard({
+  ingredient,
+  onDelete,
+}: {
+  ingredient: Ingredient;
+  onDelete?: (id: string) => void;
+}) {
   const dday = getDday(ingredient.expiryDate);
 
   return (
@@ -13,7 +22,17 @@ export default function IngredientCard({ ingredient }: { ingredient: Ingredient 
           {ingredient.quantity}{ingredient.unit} · {ingredient.category}
         </span>
       </div>
-      <ExpiryBadge dday={dday} />
+      <div className="flex items-center gap-2">
+        <ExpiryBadge dday={dday} />
+        {onDelete && (
+          <button
+            onClick={() => onDelete(ingredient.id)}
+            className="rounded-full p-1.5 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
