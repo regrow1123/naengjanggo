@@ -7,7 +7,8 @@ import { Ingredient } from '@/lib/types';
 import IngredientCard from '@/components/IngredientCard';
 import AddIngredientModal from '@/components/AddIngredientModal';
 import EditIngredientModal from '@/components/EditIngredientModal';
-import { Plus, Search, Loader2 } from 'lucide-react';
+import ReceiptScanner from '@/components/ReceiptScanner';
+import { Plus, Search, Loader2, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ export default function FridgePage() {
   const [activeFridge, setActiveFridge] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
 
   const selectedFridge = activeFridge || fridges[0]?.id;
@@ -38,9 +40,14 @@ export default function FridgePage() {
     <div className="flex flex-col gap-4 p-5">
       <div className="flex items-center justify-between pt-2">
         <h1 className="text-xl font-bold text-gray-900">🥬 내 냉장고</h1>
-        <Button size="sm" className="gap-1 bg-green-600 hover:bg-green-700" onClick={() => setShowAdd(true)}>
-          <Plus className="h-4 w-4" /> 추가
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="gap-1" onClick={() => setShowReceipt(true)}>
+            <Receipt className="h-4 w-4" /> 영수증
+          </Button>
+          <Button size="sm" className="gap-1 bg-green-600 hover:bg-green-700" onClick={() => setShowAdd(true)}>
+            <Plus className="h-4 w-4" /> 추가
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-2">
@@ -86,6 +93,14 @@ export default function FridgePage() {
           fridgeId={selectedFridge}
           onAdd={addIngredient}
           onClose={() => setShowAdd(false)}
+        />
+      )}
+
+      {showReceipt && selectedFridge && (
+        <ReceiptScanner
+          fridgeId={selectedFridge}
+          onAdd={addIngredient}
+          onClose={() => setShowReceipt(false)}
         />
       )}
 
