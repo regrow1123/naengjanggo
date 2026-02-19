@@ -4,16 +4,27 @@ import { useState } from 'react';
 import { useIngredients } from '@/hooks/useIngredients';
 import { getDday } from '@/lib/mock-data';
 import { AIRecipe } from '@/lib/types';
-import { Search, Sparkles, Loader2, Clock, ChefHat, ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Loader2, Clock, ChefHat, ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-type Tab = 'recommend' | 'urgent';
+const THEMES = [
+  { key: 'urgent', emoji: '⏰', label: '임박 소진' },
+  { key: 'korean', emoji: '🇰🇷', label: '한식' },
+  { key: 'chinese', emoji: '🇨🇳', label: '중식' },
+  { key: 'japanese', emoji: '🇯🇵', label: '일식' },
+  { key: 'western', emoji: '🍝', label: '양식' },
+  { key: 'meat', emoji: '🥩', label: '고기러버' },
+  { key: 'vegan', emoji: '🥗', label: '비건' },
+  { key: 'quick', emoji: '⚡', label: '15분 요리' },
+  { key: 'diet', emoji: '💪', label: '다이어트' },
+  { key: 'comfort', emoji: '🍜', label: '야식' },
+] as const;
 
 export default function RecipesPage() {
-  const [tab, setTab] = useState<Tab>('recommend');
+  const [theme, setTheme] = useState<string>('korean');
   const { ingredients } = useIngredients();
   const [recipes, setRecipes] = useState<AIRecipe[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,12 +38,13 @@ export default function RecipesPage() {
 
   const urgentIngredients = ingredients.filter((i) => getDday(i.expiryDate) <= 3);
 
-  const fetchRecipes = async (mode: 'recommend' | 'urgent') => {
+  const fetchRecipes = async () => {
+    const mode = theme;
     setLoading(true);
     setError('');
     setRecipes([]);
 
-    const items = (mode === 'urgent' ? urgentIngredients : ingredients).map((i) => ({
+    const items = (theme === 'urgent' ? urgentIngredients : ingredients).map((i) => ({
       name: i.name,
       quantity: i.quantity,
       unit: i.unit,
@@ -40,7 +52,7 @@ export default function RecipesPage() {
     }));
 
     if (items.length === 0) {
-      setError(mode === 'urgent' ? '유통기한 임박 재료가 없습니다.' : '냉장고에 재료를 먼저 추가해주세요.');
+      setError(theme === 'urgent' ? '유통기한 임박 재료가 없습니다.' : '냉장고에 재료를 먼저 추가해주세요.');
       setLoading(false);
       return;
     }
@@ -49,7 +61,7 @@ export default function RecipesPage() {
       const res = await fetch('/api/recipes/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients: items, mode, mustUse: Array.from(mustUse) }),
+        body: JSON.stringify({ ingredients: items, mode, theme, mustUse: Array.from(mustUse) }),
       });
 
       const data = await res.json();
@@ -71,11 +83,6 @@ export default function RecipesPage() {
     setLoading(false);
   };
 
-  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'recommend', label: '전체 추천', icon: <Sparkles className="h-3.5 w-3.5" /> },
-    { key: 'urgent', label: '임박 소진', icon: <Clock className="h-3.5 w-3.5" /> },
-  ];
-
   return (
     <div className="flex flex-col gap-4 p-5">
       <div className="pt-2">
@@ -88,18 +95,18 @@ export default function RecipesPage() {
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2">
-        {tabs.map((t) => (
+      {/* Theme Selection */}
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        {THEMES.map((t) => (
           <button
             key={t.key}
-            onClick={() => setTab(t.key)}
+            onClick={() => setTheme(t.key)}
             className={cn(
-              'flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors',
-              tab === t.key ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              'flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-sm font-medium transition-colors',
+              theme === t.key ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             )}
           >
-            {t.icon} {t.label}
+            {t.emoji} {t.label}
           </button>
         ))}
       </div>
@@ -159,7 +166,7 @@ export default function RecipesPage() {
 
       {/* Generate Button */}
       <Button
-        onClick={() => fetchRecipes(tab)}
+        onClick={() => fetchRecipes()}
         disabled={loading}
         className="gap-2 bg-orange-500 hover:bg-orange-600"
       >

@@ -18,7 +18,7 @@ async function getRecipes() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { ingredients, mode, mustUse } = await request.json();
+    const { ingredients, mode, theme, mustUse } = await request.json();
 
     if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
       return NextResponse.json({ error: '재료를 입력해주세요.' }, { status: 400 });
@@ -52,27 +52,31 @@ export async function POST(request: NextRequest) {
       ).join('\n');
     }
 
-    // 4. AI 프롬프트 생성
+    // 4. 테마별 프롬프트 생성
+    const themeDescriptions: Record<string, string> = {
+      urgent: '유통기한이 임박한 재료를 우선적으로 활용하는',
+      korean: '한식 (찌개, 볶음, 나물, 전 등)',
+      chinese: '중식 (볶음, 탕수육, 마파두부 등)',
+      japanese: '일식 (덮밥, 우동, 초밥, 조림 등)',
+      western: '양식 (파스타, 스테이크, 리조또, 샐러드 등)',
+      meat: '고기를 메인으로 하는 육식 위주',
+      vegan: '고기/해산물 없이 채소와 곡류만 사용하는 비건',
+      quick: '15분 이내로 빠르게 만들 수 있는',
+      diet: '저칼로리/고단백 다이어트용',
+      comfort: '야식으로 좋은 간단하고 맛있는',
+    };
+
+    const themeDesc = themeDescriptions[theme || mode] || '다양한';
+
     let prompt: string;
-    if (mode === 'urgent') {
-      prompt = `다음은 냉장고에 있는 재료 목록입니다. ⚠️ 표시된 재료는 유통기한이 임박합니다.
+    prompt = `다음은 냉장고에 있는 재료 목록입니다.${mode === 'urgent' ? ' ⚠️ 표시된 재료는 유통기한이 임박합니다.' : ''}
 
 재료: ${ingredientList}
 ${recipeContext}
 
-위 참고 레시피를 기반으로 유통기한 임박 재료를 우선 활용하는 레시피 3개를 추천해주세요.
-참고 레시피가 있으면 그것을 기반으로 하되, 내 재료에 맞게 조정해주세요.
+**${themeDesc}** 레시피 3개를 추천해주세요.
+위 재료를 최대한 활용하고, 참고 레시피가 있으면 기반으로 하되 내 재료에 맞게 조정해주세요.
 참고 레시피가 부족하면 새로운 레시피를 만들어도 됩니다.`;
-    } else {
-      prompt = `다음은 냉장고에 있는 재료 목록입니다.
-
-재료: ${ingredientList}
-${recipeContext}
-
-위 참고 레시피를 기반으로 이 재료들을 활용할 수 있는 레시피 3개를 추천해주세요.
-참고 레시피가 있으면 그것을 기반으로 하되, 내 재료에 맞게 조정해주세요.
-참고 레시피가 부족하면 새로운 레시피를 만들어도 됩니다.`;
-    }
 
     if (mustUse && Array.isArray(mustUse) && mustUse.length > 0) {
       prompt += `\n\n⚠️ 중요: 다음 재료는 모든 레시피에 반드시 포함해야 합니다: ${mustUse.join(', ')}`;
