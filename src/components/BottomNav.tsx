@@ -16,9 +16,12 @@ const navItems = [
 export default function BottomNav() {
   const pathname = usePathname();
 
+  // 로그인/회원가입 페이지에서는 네비 숨김
+  if (pathname === '/login' || pathname === '/signup') return null;
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white/80 backdrop-blur-lg">
-      <div className="mx-auto flex max-w-md justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white/90 backdrop-blur-lg safe-bottom">
+      <div className="mx-auto flex max-w-md">
         {navItems.map(({ href, icon: Icon, label }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
           return (
@@ -26,11 +29,11 @@ export default function BottomNav() {
               key={href}
               href={href}
               className={cn(
-                'flex flex-1 flex-col items-center gap-1 py-3 text-xs transition-colors',
+                'flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10px] transition-colors',
                 active ? 'text-green-600' : 'text-gray-400 hover:text-gray-600'
               )}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
               <span className="font-medium">{label}</span>
             </Link>
           );
