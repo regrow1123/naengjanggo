@@ -95,7 +95,32 @@ source는 참고 레시피를 기반으로 했으면 "public_db", 새로 만든 
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    const result = await model.generateContent(prompt);
+
+    // 429 재시도 (최대 2회, 간격 늘려가며)
+    let result;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        result = await model.generateContent(prompt);
+        break;
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        if (errMsg.includes('429') && attempt < 2) {
+          await new Promise((r) => setTimeout(r, (attempt + 1) * 5000));
+          continue;
+        }
+        if (errMsg.includes('429')) {
+          return NextResponse.json({
+            error: 'API 호출 한도에 도달했습니다. 1분 후 다시 시도해주세요.',
+          }, { status: 429 });
+        }
+        throw err;
+      }
+    }
+
+    if (!result) {
+      return NextResponse.json({ error: 'API 호출에 실패했습니다. 잠시 후 다시 시도해주세요.' }, { status: 500 });
+    }
+
     const text = result.response.text();
 
     const jsonMatch = text.match(/\[[\s\S]*\]/);
