@@ -71,6 +71,26 @@ export interface SavedRecipe {
   createdAt: string;
 }
 
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+export const MEAL_LABELS: Record<MealType, string> = {
+  breakfast: '아침',
+  lunch: '점심',
+  dinner: '저녁',
+  snack: '간식',
+};
+
+export interface MealPlan {
+  id: string;
+  userId: string;
+  date: string;
+  mealType: MealType;
+  title: string;
+  ingredients: { name: string; quantity: string }[];
+  memo?: string;
+  createdAt: string;
+}
+
 export interface ShoppingItem {
   id: string;
   userId: string;

@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Refrigerator, ChefHat, ShoppingCart } from 'lucide-react';
+import { Home, Refrigerator, ChefHat, ShoppingCart, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', icon: Home, label: '홈' },
   { href: '/fridge', icon: Refrigerator, label: '냉장고' },
   { href: '/recipes', icon: ChefHat, label: '레시피' },
+  { href: '/planner', icon: CalendarDays, label: '식단' },
   { href: '/shopping', icon: ShoppingCart, label: '장보기' },
 ];
 
