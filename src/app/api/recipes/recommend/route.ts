@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     let recipeContext = '';
     if (matched.length > 0) {
       recipeContext = `\n\n참고할 수 있는 실제 레시피 데이터:\n` + matched.map((r, i) =>
-        `${i + 1}. ${r.name} (${r.category}, ${r.method})\n   재료: ${r.ingredients}\n   조리법: ${r.steps.map(s => s.text).join(' → ')}`
+        `${i + 1}. [ID:${r.id}] ${r.name} (${r.category}, ${r.method})\n   재료: ${r.ingredients}\n   조리법: ${r.steps.map(s => s.text).join(' → ')}`
       ).join('\n');
     }
 
@@ -85,13 +85,15 @@ ${recipeContext}
     "ingredients": [{"name": "재료명", "quantity": "양", "have": true/false}],
     "steps": ["조리 단계 1", "조리 단계 2", ...],
     "tip": "요리 팁 (한 줄)",
-    "source": "public_db 또는 ai_generated"
+    "source": "public_db 또는 ai_generated",
+    "sourceId": "참고한 레시피 ID (source가 public_db일 때만)"
   }
 ]
 
 have는 위 재료 목록에 있으면 true, 추가로 필요하면 false로 표시해주세요.
 한국 가정에서 흔히 있는 기본 양념(소금, 설탕, 식용유, 참기름, 간장 등)은 있다고 가정해도 됩니다.
-source는 참고 레시피를 기반으로 했으면 "public_db", 새로 만든 거면 "ai_generated"로 표시해주세요.`;
+source는 참고 레시피를 기반으로 했으면 "public_db", 새로 만든 거면 "ai_generated"로 표시해주세요.
+source가 "public_db"인 경우, 참고한 레시피의 [ID:xxx]를 sourceId에 넣어주세요.`;
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
@@ -129,8 +131,16 @@ source는 참고 레시피를 기반으로 했으면 "public_db", 새로 만든 
     }
 
     const recipes = JSON.parse(jsonMatch[0]);
+
+    // 공공 레시피 원본 데이터를 ID로 매핑
+    const publicRecipeMap: Record<string, { name: string; image?: string; ingredients: string }> = {};
+    for (const r of matched) {
+      publicRecipeMap[r.id] = { name: r.name, image: r.image, ingredients: r.ingredients };
+    }
+
     return NextResponse.json({
       recipes,
+      publicRecipes: publicRecipeMap,
       matchedPublicRecipes: matched.length,
       totalPublicRecipes: allRecipes.length,
     });

@@ -20,6 +20,7 @@ export default function RecipesPage() {
   const [error, setError] = useState('');
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [meta, setMeta] = useState<{ matchedPublicRecipes: number; totalPublicRecipes: number } | null>(null);
+  const [publicRecipes, setPublicRecipes] = useState<Record<string, { name: string; image?: string; ingredients: string }>>({});
 
   const urgentIngredients = ingredients.filter((i) => getDday(i.expiryDate) <= 3);
 
@@ -55,6 +56,9 @@ export default function RecipesPage() {
         setRecipes(data.recipes);
         if (data.matchedPublicRecipes !== undefined) {
           setMeta({ matchedPublicRecipes: data.matchedPublicRecipes, totalPublicRecipes: data.totalPublicRecipes });
+        }
+        if (data.publicRecipes) {
+          setPublicRecipes(data.publicRecipes);
         }
       }
     } catch {
@@ -126,6 +130,20 @@ export default function RecipesPage() {
       <div className="flex flex-col gap-3">
         {recipes.map((recipe, idx) => (
           <Card key={idx} className="overflow-hidden">
+            {/* 공공DB 레시피 이미지 */}
+            {recipe.source === 'public_db' && recipe.sourceId && publicRecipes[recipe.sourceId]?.image && (
+              <div className="relative h-40 w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={publicRecipes[recipe.sourceId].image}
+                  alt={recipe.title}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute bottom-2 left-2">
+                  <Badge className="bg-blue-600 text-[10px]">📚 식약처 레시피</Badge>
+                </div>
+              </div>
+            )}
             <CardHeader
               className="cursor-pointer pb-2"
               onClick={() => setExpandedRecipe(expandedRecipe === idx ? null : idx)}
@@ -133,8 +151,8 @@ export default function RecipesPage() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-lg">{recipe.title}</CardTitle>
-                  {recipe.source === 'public_db' && (
-                    <Badge variant="outline" className="text-[10px] border-blue-300 text-blue-500">공공DB</Badge>
+                  {recipe.source === 'ai_generated' && (
+                    <Badge variant="outline" className="text-[10px] border-purple-300 text-purple-500">AI 생성</Badge>
                   )}
                 </div>
                 {expandedRecipe === idx ? (

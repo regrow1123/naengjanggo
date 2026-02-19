@@ -51,6 +51,7 @@ export interface AIRecipe {
   steps: string[];
   tip: string;
   source?: 'public_db' | 'ai_generated';
+  sourceId?: string;
 }
 
 export interface SavedRecipe {
