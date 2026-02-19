@@ -19,6 +19,7 @@ export default function RecipesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
+  const [meta, setMeta] = useState<{ matchedPublicRecipes: number; totalPublicRecipes: number } | null>(null);
 
   const urgentIngredients = ingredients.filter((i) => getDday(i.expiryDate) <= 3);
 
@@ -52,6 +53,9 @@ export default function RecipesPage() {
         setError(data.error);
       } else {
         setRecipes(data.recipes);
+        if (data.matchedPublicRecipes !== undefined) {
+          setMeta({ matchedPublicRecipes: data.matchedPublicRecipes, totalPublicRecipes: data.totalPublicRecipes });
+        }
       }
     } catch {
       setError('레시피 추천 중 오류가 발생했습니다.');
@@ -111,6 +115,13 @@ export default function RecipesPage() {
         <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600">{error}</div>
       )}
 
+      {/* Meta info */}
+      {meta && recipes.length > 0 && (
+        <div className="rounded-xl bg-blue-50 p-3 text-xs text-blue-600">
+          📚 공공 레시피 DB {meta.totalPublicRecipes}개 중 {meta.matchedPublicRecipes}개 매칭 → AI가 최적화
+        </div>
+      )}
+
       {/* Recipe Results */}
       <div className="flex flex-col gap-3">
         {recipes.map((recipe, idx) => (
@@ -120,7 +131,12 @@ export default function RecipesPage() {
               onClick={() => setExpandedRecipe(expandedRecipe === idx ? null : idx)}
             >
               <div className="flex items-start justify-between">
-                <CardTitle className="text-lg">{recipe.title}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-lg">{recipe.title}</CardTitle>
+                  {recipe.source === 'public_db' && (
+                    <Badge variant="outline" className="text-[10px] border-blue-300 text-blue-500">공공DB</Badge>
+                  )}
+                </div>
                 {expandedRecipe === idx ? (
                   <ChevronUp className="h-5 w-5 text-gray-400" />
                 ) : (

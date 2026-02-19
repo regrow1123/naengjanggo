@@ -50,6 +50,7 @@ export interface AIRecipe {
   ingredients: RecipeIngredient[];
   steps: string[];
   tip: string;
+  source?: 'public_db' | 'ai_generated';
 }
 
 export interface SavedRecipe {
