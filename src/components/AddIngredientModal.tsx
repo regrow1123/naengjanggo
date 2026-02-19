@@ -13,10 +13,11 @@ interface Props {
   fridgeId: string;
   onAdd: (ingredient: Omit<Ingredient, 'id' | 'createdAt'>) => Promise<unknown>;
   onClose: () => void;
+  initialName?: string;
 }
 
-export default function AddIngredientModal({ fridgeId, onAdd, onClose }: Props) {
-  const [name, setName] = useState('');
+export default function AddIngredientModal({ fridgeId, onAdd, onClose, initialName }: Props) {
+  const [name, setName] = useState(initialName || '');
   const [category, setCategory] = useState<Category>('기타');
   const [quantity, setQuantity] = useState('1');
   const [unit, setUnit] = useState<Unit>('개');
