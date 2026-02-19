@@ -15,7 +15,7 @@ create table public.fridges (
   id uuid default uuid_generate_v4() primary key,
   user_id uuid references public.profiles on delete cascade not null,
   name text not null,
-  type text not null check (type in ('refrigerator', 'freezer', 'kimchi')),
+  type text not null check (type in ('refrigerator', 'freezer')),
   created_at timestamptz default now()
 );
 
@@ -110,8 +110,7 @@ returns trigger as $$
 begin
   insert into public.fridges (user_id, name, type) values
     (new.id, '냉장실', 'refrigerator'),
-    (new.id, '냉동실', 'freezer'),
-    (new.id, '김치냉장고', 'kimchi');
+    (new.id, '냉동실', 'freezer');
   return new;
 end;
 $$ language plpgsql security definer;

@@ -5,9 +5,8 @@ const today = new Date();
 const fmt = (d: Date) => format(d, 'yyyy-MM-dd');
 
 export const mockFridges: Fridge[] = [
-  { id: 'f1', userId: 'u1', name: '메인 냉장고', type: 'refrigerator', createdAt: '2025-01-01' },
+  { id: 'f1', userId: 'u1', name: '냉장실', type: 'refrigerator', createdAt: '2025-01-01' },
   { id: 'f2', userId: 'u1', name: '냉동실', type: 'freezer', createdAt: '2025-01-01' },
-  { id: 'f3', userId: 'u1', name: '김치냉장고', type: 'kimchi', createdAt: '2025-01-01' },
 ];
 
 export const mockIngredients: Ingredient[] = [
@@ -26,9 +25,6 @@ export const mockIngredients: Ingredient[] = [
   // 냉동
   { id: 'i11', fridgeId: 'f2', name: '만두', category: '냉동식품', quantity: 1, unit: '봉', purchaseDate: fmt(subDays(today, 14)), expiryDate: fmt(addDays(today, 90)), createdAt: '' },
   { id: 'i12', fridgeId: 'f2', name: '새우', category: '해산물', quantity: 500, unit: 'g', purchaseDate: fmt(subDays(today, 7)), expiryDate: fmt(addDays(today, 60)), createdAt: '' },
-  // 김치냉장고
-  { id: 'i13', fridgeId: 'f3', name: '배추김치', category: '기타', quantity: 2, unit: 'kg', purchaseDate: fmt(subDays(today, 14)), expiryDate: fmt(addDays(today, 30)), createdAt: '' },
-  { id: 'i14', fridgeId: 'f3', name: '깍두기', category: '기타', quantity: 1, unit: 'kg', purchaseDate: fmt(subDays(today, 7)), expiryDate: fmt(addDays(today, 21)), createdAt: '' },
 ];
 
 export const mockShoppingItems: ShoppingItem[] = [

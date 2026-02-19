@@ -9,7 +9,7 @@ export interface Fridge {
   id: string;
   userId: string;
   name: string;
-  type: 'refrigerator' | 'freezer' | 'kimchi';
+  type: 'refrigerator' | 'freezer';
   createdAt: string;
 }
 
