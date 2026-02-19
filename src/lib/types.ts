@@ -37,6 +37,21 @@ export interface Ingredient {
   createdAt: string;
 }
 
+export interface RecipeIngredient {
+  name: string;
+  quantity: string;
+  have: boolean;
+}
+
+export interface AIRecipe {
+  title: string;
+  time: string;
+  difficulty: string;
+  ingredients: RecipeIngredient[];
+  steps: string[];
+  tip: string;
+}
+
 export interface SavedRecipe {
   id: string;
   userId: string;
@@ -48,6 +63,7 @@ export interface SavedRecipe {
     steps: string[];
     time?: string;
     difficulty?: string;
+    tip?: string;
     image?: string;
   };
   createdAt: string;
