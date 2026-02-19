@@ -18,7 +18,7 @@ async function getRecipes() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { ingredients, mode } = await request.json();
+    const { ingredients, mode, mustUse } = await request.json();
 
     if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
       return NextResponse.json({ error: '재료를 입력해주세요.' }, { status: 400 });
@@ -72,6 +72,10 @@ ${recipeContext}
 위 참고 레시피를 기반으로 이 재료들을 활용할 수 있는 레시피 3개를 추천해주세요.
 참고 레시피가 있으면 그것을 기반으로 하되, 내 재료에 맞게 조정해주세요.
 참고 레시피가 부족하면 새로운 레시피를 만들어도 됩니다.`;
+    }
+
+    if (mustUse && Array.isArray(mustUse) && mustUse.length > 0) {
+      prompt += `\n\n⚠️ 중요: 다음 재료는 모든 레시피에 반드시 포함해야 합니다: ${mustUse.join(', ')}`;
     }
 
     prompt += `

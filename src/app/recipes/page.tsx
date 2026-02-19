@@ -20,6 +20,8 @@ export default function RecipesPage() {
   const [error, setError] = useState('');
   const [expandedRecipe, setExpandedRecipe] = useState<number | null>(null);
   const [addedToCart, setAddedToCart] = useState<Set<number>>(new Set());
+  const [mustUse, setMustUse] = useState<Set<string>>(new Set());
+  const [showIngredientPicker, setShowIngredientPicker] = useState(false);
   const [meta, setMeta] = useState<{ matchedPublicRecipes: number; totalPublicRecipes: number } | null>(null);
   const [publicRecipes, setPublicRecipes] = useState<Record<string, { name: string; image?: string; ingredients: string }>>({});
 
@@ -47,7 +49,7 @@ export default function RecipesPage() {
       const res = await fetch('/api/recipes/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients: items, mode }),
+        body: JSON.stringify({ ingredients: items, mode, mustUse: Array.from(mustUse) }),
       });
 
       const data = await res.json();
@@ -101,6 +103,59 @@ export default function RecipesPage() {
           </button>
         ))}
       </div>
+
+      {/* Must-use ingredient picker */}
+      {ingredients.length > 0 && (
+        <div>
+          <button
+            onClick={() => setShowIngredientPicker(!showIngredientPicker)}
+            className="flex items-center gap-1 text-sm text-gray-600 hover:text-green-600"
+          >
+            🎯 필수 재료 {mustUse.size > 0 && `(${mustUse.size}개 선택)`}
+            <span className="text-xs">{showIngredientPicker ? '▲' : '▼'}</span>
+          </button>
+          {showIngredientPicker && (
+            <div className="mt-2 flex flex-wrap gap-1.5 rounded-xl bg-gray-50 p-3">
+              {ingredients.map((i) => (
+                <button
+                  key={i.id}
+                  onClick={() => {
+                    setMustUse((prev) => {
+                      const next = new Set(prev);
+                      next.has(i.name) ? next.delete(i.name) : next.add(i.name);
+                      return next;
+                    });
+                  }}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    mustUse.has(i.name)
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-gray-600 border hover:border-green-300'
+                  }`}
+                >
+                  {i.name}
+                </button>
+              ))}
+              {mustUse.size > 0 && (
+                <button
+                  onClick={() => setMustUse(new Set())}
+                  className="rounded-full px-3 py-1.5 text-xs text-red-500 hover:bg-red-50"
+                >
+                  초기화
+                </button>
+              )}
+            </div>
+          )}
+          {mustUse.size > 0 && !showIngredientPicker && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {Array.from(mustUse).map((name) => (
+                <span key={name} className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">
+                  {name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Generate Button */}
       <Button
