@@ -96,13 +96,13 @@ export default function RecipesPage() {
       </div>
 
       {/* Theme Selection */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+      <div className="flex flex-wrap gap-2">
         {THEMES.map((t) => (
           <button
             key={t.key}
             onClick={() => setTheme(t.key)}
             className={cn(
-              'flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-sm font-medium transition-colors',
+              'flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
               theme === t.key ? 'bg-orange-500 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             )}
           >
