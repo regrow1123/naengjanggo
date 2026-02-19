@@ -1,11 +1,13 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+// 인증 필수 여부 — false면 로그인 없이 사용 가능
+const AUTH_REQUIRED = false;
+
 export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Supabase 미설정 시 통과 (mock 모드)
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.next();
   }
@@ -27,8 +29,15 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // 세션 갱신 (로그인 상태면 유지)
+  await supabase.auth.getUser();
 
+  // 인증 필수가 아니면 리다이렉트 안 함
+  if (!AUTH_REQUIRED) {
+    return supabaseResponse;
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
   const isPublic = request.nextUrl.pathname.startsWith('/login') ||
                    request.nextUrl.pathname.startsWith('/signup') ||
                    request.nextUrl.pathname.startsWith('/auth');
