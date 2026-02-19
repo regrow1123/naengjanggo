@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useFridges, useIngredients } from '@/hooks/useIngredients';
 import { getDday } from '@/lib/mock-data';
+import { Ingredient } from '@/lib/types';
 import IngredientCard from '@/components/IngredientCard';
 import AddIngredientModal from '@/components/AddIngredientModal';
+import EditIngredientModal from '@/components/EditIngredientModal';
 import { Plus, Search, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,10 +17,10 @@ export default function FridgePage() {
   const [activeFridge, setActiveFridge] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
 
-  // 첫 번째 냉장고 자동 선택
   const selectedFridge = activeFridge || fridges[0]?.id;
-  const { ingredients, loading, addIngredient, deleteIngredient } = useIngredients(selectedFridge);
+  const { ingredients, loading, addIngredient, deleteIngredient, updateIngredient } = useIngredients(selectedFridge);
 
   const filtered = ingredients
     .filter((i) => !search || i.name.includes(search) || i.category.includes(search))
@@ -68,7 +70,11 @@ export default function FridgePage() {
           </div>
         ) : (
           filtered.map((ingredient) => (
-            <IngredientCard key={ingredient.id} ingredient={ingredient} onDelete={deleteIngredient} />
+            <IngredientCard
+              key={ingredient.id}
+              ingredient={ingredient}
+              onClick={setEditingIngredient}
+            />
           ))
         )}
       </div>
@@ -80,6 +86,15 @@ export default function FridgePage() {
           fridgeId={selectedFridge}
           onAdd={addIngredient}
           onClose={() => setShowAdd(false)}
+        />
+      )}
+
+      {editingIngredient && (
+        <EditIngredientModal
+          ingredient={editingIngredient}
+          onUpdate={updateIngredient}
+          onDelete={deleteIngredient}
+          onClose={() => setEditingIngredient(null)}
         />
       )}
     </div>
