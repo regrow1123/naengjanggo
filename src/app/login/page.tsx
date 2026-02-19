@@ -36,23 +36,35 @@ export default function LoginPage() {
       const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
 
       if (loginError) {
+        console.log('Login failed:', loginError.message, '→ trying signup');
+
         // 계정 없으면 자동 생성
-        const { error: signupError } = await supabase.auth.signUp({
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { passphrase_hash: hash.slice(0, 8) } },
         });
 
+        console.log('Signup result:', { user: signupData?.user?.id, session: !!signupData?.session, error: signupError?.message });
+
         if (signupError) {
-          setError('인증에 실패했습니다. 다시 시도해주세요.');
+          setError(`가입 실패: ${signupError.message}`);
           setLoading(false);
           return;
         }
 
-        // 가입 후 로그인
+        // signUp이 바로 세션을 반환하면 로그인 불필요
+        if (signupData?.session) {
+          localStorage.setItem('naengjanggo_passphrase', passphrase.trim().toLowerCase());
+          router.push('/');
+          router.refresh();
+          return;
+        }
+
+        // 세션 없으면 로그인 재시도
         const { error: retryError } = await supabase.auth.signInWithPassword({ email, password });
         if (retryError) {
-          setError('인증에 실패했습니다. 다시 시도해주세요.');
+          setError(`로그인 실패: ${retryError.message}`);
           setLoading(false);
           return;
         }
