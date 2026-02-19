@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // 인증 필수 여부 — false면 로그인 없이 사용 가능
-const AUTH_REQUIRED = false;
+const AUTH_REQUIRED = true;
 
 export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
